@@ -16,7 +16,7 @@ def conv_raw_record_to_datetime(raw):
     ret = datetime.fromtimestamp((float)(raw))
     return ret
 
-def feature_record(outfile, tcp_cnt, udp_cnt, other_cnt):
+def feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_100_cnt,size_under_1200_cnt,size_over_1200_cnt):
     #append ts
     feature_record_list.append(ex_datetime.strftime('%F %H:%M:%S:%f'))
 
@@ -24,6 +24,11 @@ def feature_record(outfile, tcp_cnt, udp_cnt, other_cnt):
     feature_record_list.append((str)(tcp_cnt))
     feature_record_list.append((str)(udp_cnt))
     feature_record_list.append((str)(other_cnt))
+
+    feature_record_list.append((str)(size_under_100_cnt))
+    feature_record_list.append((str)(size_under_1200_cnt))
+    feature_record_list.append((str)(size_over_1200_cnt))
+
 
     feature_record = ','.join(feature_record_list)
     outfile.write(feature_record + "\n")
@@ -34,6 +39,9 @@ with open('out.csv',"w") as outfile:
     tcp_cnt = 0
     udp_cnt = 0
     other_cnt = 0
+    size_under_100_cnt = 0
+    size_under_1200_cnt = 0
+    size_over_1200_cnt = 0
 
     for log_record in ParseZeekLogs("conn.log", output_format="csv", safe_headers=False, fields=["ts","proto","orig_bytes"]):
         if len(log_record) > 0:
@@ -41,6 +49,8 @@ with open('out.csv',"w") as outfile:
 
             #log의 timestamp 를 datetime으로 변환
             log_record_datetime = conv_raw_record_to_datetime(log_record_list[0])
+
+            print(log_record_list)
 
             #cnt
             proto_filed = log_record_list[1][1:-1]
@@ -50,6 +60,18 @@ with open('out.csv',"w") as outfile:
                 udp_cnt += 1
             else:
                 other_cnt += 1
+
+            #packet size cnt
+            #TODO 그 size 부분 비었을때 예외처리
+            size_filed = (int)(log_record_list[2][1:-1])
+
+            if size_filed <= 100:
+                size_under_100_cnt += 1
+            elif size_filed <= 1200:
+                size_under_1200_cnt += 1
+            else:
+                size_over_1200_cnt += 1
+
 
             #맨 처음 시작 로그이면
             if flag_is_first:
@@ -67,10 +89,15 @@ with open('out.csv',"w") as outfile:
             #추출한 feature를 저장
             if log_record_flag:
                 log_record_flag = False
-                feature_record(outfile, tcp_cnt, udp_cnt, other_cnt)
+                feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_100_cnt,size_under_1200_cnt,size_over_1200_cnt)
+
+                #cnt 변수 초기화
                 tcp_cnt = 0
                 udp_cnt = 0
                 other_cnt = 0
+                size_under_100_cnt = 0
+                size_under_1200_cnt = 0
+                size_over_1200_cnt = 0
 
 
             #시작 로그면 ex_datetime update
