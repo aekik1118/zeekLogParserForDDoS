@@ -29,7 +29,6 @@ def feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_100_cnt,size_
     feature_record_list.append((str)(size_under_1200_cnt))
     feature_record_list.append((str)(size_over_1200_cnt))
 
-
     feature_record = ','.join(feature_record_list)
     outfile.write(feature_record + "\n")
     feature_record_list.clear()
@@ -50,8 +49,6 @@ with open('out.csv',"w") as outfile:
             #log의 timestamp 를 datetime으로 변환
             log_record_datetime = conv_raw_record_to_datetime(log_record_list[0])
 
-            print(log_record_list)
-
             #cnt
             proto_filed = log_record_list[1][1:-1]
             if proto_filed == 'tcp':
@@ -63,7 +60,9 @@ with open('out.csv',"w") as outfile:
 
             #packet size cnt
             #TODO 그 size 부분 비었을때 예외처리
-            size_filed = (int)(log_record_list[2][1:-1])
+            #size_filed = (int)(log_record_list[2][1:-1])
+
+            size_filed=0
 
             if size_filed <= 100:
                 size_under_100_cnt += 1
@@ -106,6 +105,6 @@ with open('out.csv',"w") as outfile:
                 ex_datetime = log_record_datetime
 
     #마지막 feature 저장
-    feature_record(outfile, tcp_cnt, udp_cnt, other_cnt)
+    feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_100_cnt,size_under_1200_cnt,size_over_1200_cnt)
 
 
