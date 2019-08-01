@@ -7,6 +7,7 @@ log_start_flag = True
 log_record_flag = False
 ex_datetime = datetime.fromtimestamp(100000.1)
 feature_record_list = []
+TIME_WINDOW_SIZE = 10
 
 def conv_raw_record_to_datetime(raw):
     raw = raw[1:-1]
@@ -59,7 +60,7 @@ with open('out.csv',"w") as outfile:
                 continue
 
             #time window의 시작 로그인지 체크
-            if (ex_datetime + timedelta(seconds=10)) < log_record_datetime:
+            if (ex_datetime + timedelta(seconds=TIME_WINDOW_SIZE)) < log_record_datetime:
                 log_start_flag = True
                 log_record_flag = True
 
