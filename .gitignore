@@ -115,3 +115,4 @@ venv/Lib/
 venv/Scripts
 venv/*.cfg
 .idea
+venv/out.csv
