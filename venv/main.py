@@ -7,7 +7,8 @@ log_start_flag = True
 log_record_flag = False
 ex_datetime = datetime.fromtimestamp(100000.1)
 feature_record_list = []
-TIME_WINDOW_SIZE = 10
+TIME_WINDOW_SIZE = 5
+feature_record_name = ["timestamp","tcp_cnt","udp_cnt","other_cnt","size_under_50_bytes","size_under_100_bytes","size_under_1200_bytes","size_over_1200_bytes"]
 
 def conv_raw_record_to_datetime(raw):
     raw = raw[1:-1]
@@ -16,7 +17,7 @@ def conv_raw_record_to_datetime(raw):
     ret = datetime.fromtimestamp((float)(raw))
     return ret
 
-def feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_100_cnt,size_under_1200_cnt,size_over_1200_cnt):
+def feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_50_cnt,size_under_100_cnt,size_under_1200_cnt,size_over_1200_cnt):
     #append ts
     feature_record_list.append(ex_datetime.strftime('%F %H:%M:%S:%f'))
 
@@ -25,6 +26,7 @@ def feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_100_cnt,size_
     feature_record_list.append((str)(udp_cnt))
     feature_record_list.append((str)(other_cnt))
 
+    feature_record_list.append((str)(size_under_50_cnt))
     feature_record_list.append((str)(size_under_100_cnt))
     feature_record_list.append((str)(size_under_1200_cnt))
     feature_record_list.append((str)(size_over_1200_cnt))
@@ -34,15 +36,20 @@ def feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_100_cnt,size_
     feature_record_list.clear()
 
 
-with open('out.csv',"w") as outfile:
+with open('out_youtube_10.csv',"w") as outfile:
     tcp_cnt = 0
     udp_cnt = 0
     other_cnt = 0
+    size_under_50_cnt = 0
     size_under_100_cnt = 0
     size_under_1200_cnt = 0
     size_over_1200_cnt = 0
 
-    for log_record in ParseZeekLogs("conn.log", output_format="csv", safe_headers=False, fields=["ts","proto","orig_bytes"]):
+
+    tmp = ','.join(feature_record_name)
+    outfile.write(tmp + "\n")
+
+    for log_record in ParseZeekLogs("conn_youtube_10.log", output_format="csv", safe_headers=False, fields=["ts","proto","orig_bytes"]):
         if len(log_record) > 0:
             log_record_list = log_record.split(',')
 
@@ -59,12 +66,14 @@ with open('out.csv',"w") as outfile:
                 other_cnt += 1
 
             #packet size cnt
-            #TODO 그 size 부분 비었을때 예외처리
-            #size_filed = (int)(log_record_list[2][1:-1])
+            size_filed = 0
 
-            size_filed=0
+            if len(log_record_list)>2 and log_record_list[2][1:-1].isdigit():
+                size_filed = (int)(log_record_list[2][1:-1])
 
-            if size_filed <= 100:
+            if size_filed <= 50:
+                size_under_50_cnt += 1
+            elif size_filed <= 100:
                 size_under_100_cnt += 1
             elif size_filed <= 1200:
                 size_under_1200_cnt += 1
@@ -88,12 +97,13 @@ with open('out.csv',"w") as outfile:
             #추출한 feature를 저장
             if log_record_flag:
                 log_record_flag = False
-                feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_100_cnt,size_under_1200_cnt,size_over_1200_cnt)
+                feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_50_cnt,size_under_100_cnt,size_under_1200_cnt,size_over_1200_cnt)
 
                 #cnt 변수 초기화
                 tcp_cnt = 0
                 udp_cnt = 0
                 other_cnt = 0
+                size_under_50_cnt = 0
                 size_under_100_cnt = 0
                 size_under_1200_cnt = 0
                 size_over_1200_cnt = 0
@@ -105,6 +115,6 @@ with open('out.csv',"w") as outfile:
                 ex_datetime = log_record_datetime
 
     #마지막 feature 저장
-    feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_100_cnt,size_under_1200_cnt,size_over_1200_cnt)
+    feature_record(outfile, tcp_cnt, udp_cnt, other_cnt,size_under_50_cnt,size_under_100_cnt,size_under_1200_cnt,size_over_1200_cnt)
 
 

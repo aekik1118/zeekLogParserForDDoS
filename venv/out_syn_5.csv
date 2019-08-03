@@ -1,0 +1,2 @@
+timestamp,tcp_cnt,udp_cnt,other_cnt,size_under_50_bytes,size_under_100_bytes,size_under_1200_bytes,size_over_1200_bytes
+2019-08-03 02:13:12:399912,43476,1,0,43477,0,0,0
