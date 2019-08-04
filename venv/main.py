@@ -2,6 +2,7 @@ from parsezeeklogs import ParseZeekLogs
 from datetime import datetime, timedelta
 import time
 
+ts_record_list = []
 feature_record_list = []
 TIME_WINDOW_SIZE = 10
 feature_record_name = ["timestamp","tcp_ratio","udp_ratio","other_ratio","size_under_50_bytes","size_under_100_bytes","size_under_1200_bytes","size_over_1200_bytes","S0_ratio","RSTO_ratio","OTH_ratio","SHR_ratio","interval_under_50ms_ratio"]
@@ -97,9 +98,7 @@ def start_parse(file_name):
                 else:
                     other_cnt += 1
 
-                if before_datetime > log_record_datetime - timedelta(milliseconds=50):
-                    interval_under_50ms_cnt += 1
-                elif before_datetime < log_record_datetime + timedelta(milliseconds=50):
+                if (before_datetime > log_record_datetime - timedelta(milliseconds=50)) and (before_datetime < log_record_datetime + timedelta(milliseconds=50)):
                     interval_under_50ms_cnt += 1
 
                 size_filed = 0
