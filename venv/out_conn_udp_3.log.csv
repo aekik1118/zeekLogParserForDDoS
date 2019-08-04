@@ -1,2 +1,2 @@
-timestamp,tcp_ratio,udp_ratio,other_ratio,size_under_50_bytes,size_under_100_bytes,size_under_1200_bytes,size_over_1200_bytes,S0_ratio,RSTO_ratio,OTH_ratio,SHR_ratio,interval_under_50ms_ratio
-2019-08-03 02:15:11:878976,0.0,99.9969859545482,0.0,99.99397190909639,0.0030140454518054133,0.0,0.0,99.98191572728918,0.0,0.0,0.015070227259027066,6.076315630839713
+timestamp,conn number,tcp_ratio,udp_ratio,other_ratio,size_under_50_bytes,size_under_100_bytes,size_under_1200_bytes,size_over_1200_bytes,S0_ratio,RSTO_ratio,OTH_ratio,SHR_ratio,interval_under_50ms_ratio
+2019-08-03 02:15:10:461116,33178,0.0,99.9969859545482,0.0,99.9969859545482,0.0,0.0,0.0,99.97890168183736,0.0,0.0,0.018084272710832478,99.99397190909639

@@ -2,10 +2,10 @@ from parsezeeklogs import ParseZeekLogs
 from datetime import datetime, timedelta
 import time
 
-ts_record_list = []
+
 feature_record_list = []
 TIME_WINDOW_SIZE = 10
-feature_record_name = ["timestamp","tcp_ratio","udp_ratio","other_ratio","size_under_50_bytes","size_under_100_bytes","size_under_1200_bytes","size_over_1200_bytes","S0_ratio","RSTO_ratio","OTH_ratio","SHR_ratio","interval_under_50ms_ratio"]
+feature_record_name = ["timestamp","conn number","tcp_ratio","udp_ratio","other_ratio","size_under_50_bytes","size_under_100_bytes","size_under_1200_bytes","size_over_1200_bytes","S0_ratio","RSTO_ratio","OTH_ratio","SHR_ratio","interval_under_50ms_ratio"]
 LOG_FILE_NAME_LIST = ["conn_http.log","conn_syn_5.log","conn_udp_3.log","conn_youtube_10.log"]
 
 def conv_raw_record_to_datetime(raw):
@@ -16,8 +16,13 @@ def conv_raw_record_to_datetime(raw):
     return ret
 
 def feature_record(outfile,ex_datetime, tcp_cnt, udp_cnt, other_cnt,size_under_50_cnt,size_under_100_cnt,size_under_1200_cnt,size_over_1200_cnt,packet_cnt, S0_cnt, RSTO_cnt, OTH_cnt,SHR_cnt,interval_under_50ms_cnt):
+    if packet_cnt < 1:
+        return
+
     #append ts
     feature_record_list.append(ex_datetime.strftime('%F %H:%M:%S:%f'))
+
+    feature_record_list.append((str)(packet_cnt))
 
     #append tcp_cnt
     feature_record_list.append((str)((tcp_cnt/packet_cnt)*100))
@@ -45,6 +50,7 @@ def start_parse(file_name):
     flag_is_first = True
     log_start_flag = True
     log_record_flag = False
+    ts_record_list = []
 
 
     with open('out_' + file_name + '.csv', "w") as outfile:
@@ -72,13 +78,19 @@ def start_parse(file_name):
 
         for log_record in ParseZeekLogs(file_name, output_format="csv", safe_headers=False,
                                         fields=["ts", "proto", "orig_bytes", "resp_bytes", "conn_state", "orig_ip_bytes", "resp_ip_bytes"]):
-            if len(log_record) > 0:
-                packet_cnt += 1
+            if log_record is not None:
                 log_record_list = log_record.split(',')
+                log_record_datetime = conv_raw_record_to_datetime(log_record_list[0])
+                ts_record_list.append((log_record_datetime, log_record_list))
+
+        ts_record_list.sort()
+
+        for log_record_datetime, log_record_list in ts_record_list:
+            if len(log_record_list) > 1:
+                packet_cnt += 1
 
                 # log의 timestamp 를 datetime으로 변환
-                log_record_datetime = conv_raw_record_to_datetime(log_record_list[0])
-
+                # log_record_datetime = conv_raw_record_to_datetime(log_record_list[0])
 
                 # 맨 처음 시작 로그이면
                 if flag_is_first:

@@ -15,9 +15,9 @@ def conv_raw_record_to_datetime(raw):
 with open('out.csv',"w") as outfile:
     for log_record in ParseZeekLogs("conn.log", output_format="csv", safe_headers=False, fields=["ts","id.orig_h","id.orig_p","id.resp_h","id.resp_p"]):
         if log_record is not None:
-
             log_record_list = log_record.split(',')
             log_record_datetime = conv_raw_record_to_datetime(log_record_list[0])
             ts_index_list.append((log_record_datetime,log_record_list))
 
+    ts_index_list.sort()
 
